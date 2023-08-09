@@ -167,7 +167,8 @@
         this._radi = [];
 
         for (var i = 0; i < pointsLen; i++) {
-          this._organiseData(dataPoints[i], true);
+
+          this._organiseData(dataPoints[i], this._absolute === true);
         }
         this._max = data.max;
         this._min = data.min || 0;
@@ -465,9 +466,9 @@
               // console.log(existingAlpha, newAlpha);
               imgData.data[i + 3] = Math.max(existingAlpha, newAlpha);
             }
+            shadowCtx.putImageData(imgData, rectX, rectY)
           }
-          shadowCtx.putImageData(imgData, rectX, rectY)
-          // shadowCtx.drawImage(tpl, rectX, rectY);
+          else { shadowCtx.drawImage(tpl, rectX, rectY); }
           // const imgData = shadowCtx.getImageData(rectX, rectY, 2*radius, 2*radius )
           // for(let i =0;i<imgData.data.length;i+=4) {
           //   const existingAlpha = imgData.data[i + 3];
