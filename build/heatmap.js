@@ -449,15 +449,15 @@
           // this fixes #176: small values are not visible because globalAlpha < .01 cannot be read from imageData
           shadowCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
 
-          if (this._absolute) {
-            var newCanvas = document.createElement('canvas');
-            var newCtx = newCanvas.getContext('2d');
-            newCanvas.width = newCanvas.height = radius * 2;
-            newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
-            newCtx.drawImage(tpl, 0, 0);
+          var newCanvas = document.createElement('canvas');
+          var newCtx = newCanvas.getContext('2d');
+          newCanvas.width = newCanvas.height = radius * 2;
+          newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
+          newCtx.drawImage(tpl, 0, 0);
 
-            const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
-            const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
+          const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
+          const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
+          if (this._absolute) {
             for (let i = 0; i < imgData.data.length; i += 4) {
               const existingAlpha = imgData.data[i + 3];
               const newAlpha = currentData.data[i + 3];
