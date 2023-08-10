@@ -166,6 +166,7 @@
         this._radi = [];
 
         for (var i = 0; i < pointsLen; i++) {
+          console.log("From library", dataPoints[i]);
           this._organiseData(dataPoints[i], this._absolute);
         }
         this._max = data.max;
