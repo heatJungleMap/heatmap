@@ -133,7 +133,6 @@
         });
       },
       addData: function () {
-        alert("Add data")
         if (arguments[0].length > 0) {
           var dataArr = arguments[0];
           var dataLen = dataArr.length;
@@ -166,9 +165,10 @@
         this._data = [];
         this._radi = [];
 
-        for (var i = 0; i < pointsLen; i++) {
-
-          this._organiseData(dataPoints[i], this._absolute === true);
+        if (this._absolute) {
+          for (var i = 0; i < pointsLen; i++) {
+            this._organiseData(dataPoints[i], this._absolute);
+          }
         }
         this._max = data.max;
         this._min = data.min || 0;
@@ -451,15 +451,15 @@
           // this fixes #176: small values are not visible because globalAlpha < .01 cannot be read from imageData
           shadowCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
 
-          var newCanvas = document.createElement('canvas');
-          var newCtx = newCanvas.getContext('2d');
-          newCanvas.width = newCanvas.height = radius * 2;
-          newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
-          newCtx.drawImage(tpl, 0, 0);
-
-          const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
-          const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
           if (this._absolute) {
+            var newCanvas = document.createElement('canvas');
+            var newCtx = newCanvas.getContext('2d');
+            newCanvas.width = newCanvas.height = radius * 2;
+            newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
+            newCtx.drawImage(tpl, 0, 0);
+
+            const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
+            const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
             for (let i = 0; i < imgData.data.length; i += 4) {
               const existingAlpha = imgData.data[i + 3];
               const newAlpha = currentData.data[i + 3];
