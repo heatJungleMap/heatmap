@@ -165,10 +165,8 @@
         this._data = [];
         this._radi = [];
 
-        if (this._absolute) {
-          for (var i = 0; i < pointsLen; i++) {
-            this._organiseData(dataPoints[i], this._absolute);
-          }
+        for (var i = 0; i < pointsLen; i++) {
+          this._organiseData(dataPoints[i], this._absolute);
         }
         this._max = data.max;
         this._min = data.min || 0;
