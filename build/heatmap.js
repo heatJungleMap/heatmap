@@ -288,8 +288,10 @@
         tplCtx.fillStyle = gradient;
         tplCtx.fillRect(0, 0, 2 * radius, 2 * radius);
       }
-      if (this._absolute) { return { tplCanvas, tplCtx }; }
-      else { return tplCanvas }
+
+      if (this._absolute)
+        return { tplCanvas, tplCtx };
+      else return tplCanvas
     };
 
     var _prepareData = function (data) {
@@ -340,12 +342,9 @@
       this._width = canvas.width = shadowCanvas.width = config.width || +(computed.width.replace(/px/, ''));
       this._height = canvas.height = shadowCanvas.height = config.height || +(computed.height.replace(/px/, ''));
 
-      if (this._absolute) {
+      if (this._absolute)
         this.shadowCtx = shadowCanvas.getContext('2d', { willReadFrequently: false });
-      }
-      else {
-        this.shadowCtx = shadowCanvas.getContext('2d');	
-      }
+      else this.shadowCtx = shadowCanvas.getContext('2d')
       this.ctx = canvas.getContext('2d');
 
       // @TODO:
@@ -358,8 +357,7 @@
 
       this._palette = _getColorPalette(config);
       this._templates = {};
-      if (this._absolute)
-        this._tmpContext = {};
+      this._tmpContext = {};
 
       this._setStyles(config);
     };
@@ -435,29 +433,20 @@
           var rectX = x - radius;
           var rectY = y - radius;
           var shadowCtx = this.shadowCtx;
-
           var tpl;
-          // var tplContext;
           var tplContext;
-          if (!this._templates[radius]) {
 
-            if (!this._absolute) {
-              this._templates[radius] = tpl = _getPointTemplate(radius, blur);
-            }
-            else {
+          if (!this._templates[radius]) {
+            if (this._absolute) {
               const { tplCanvas, tplCtx } = _getPointTemplate(radius, blur);
               this._templates[radius] = tpl = tplCanvas
               this._tmpContext[radius] = newContext = tplCtx
             }
-
+            else this._templates[radius] = tpl = _getPointTemplate(radius, blur);
           } else {
-            if (!this._absolute) {
-              tpl = this._templates[radius];
-            }
-            else {
-              tpl = this._templates[radius];
+            tpl = this._templates[radius];
+            if (this._absolute)
               tplContext = this._tmpContext[radius]
-            }
           }
           // value from minimum / value range
           // => [0, 1]
@@ -471,7 +460,6 @@
             newCanvas.width = newCanvas.height = radius * 2;
             newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
             newCtx.drawImage(tpl, 0, 0);
-
             const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
             const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
             for (let i = 0; i < imgData.data.length; i += 4) {
@@ -481,16 +469,16 @@
               imgData.data[i + 3] = Math.max(existingAlpha, newAlpha);
             }
             shadowCtx.putImageData(imgData, rectX, rectY)
-            shadowCtx.drawImage(tpl, rectX, rectY);
+            // shadowCtx.drawImage(tpl, rectX, rectY);
+            // const imgData = shadowCtx.getImageData(rectX, rectY, 2*radius, 2*radius )
+            // for(let i =0;i<imgData.data.length;i+=4) {
+            //   const existingAlpha = imgData.data[i + 3];
+            //   if(existingAlpha > 0){
+            //     console.log(existingAlpha);
+            //   }
+            // }
           }
-          shadowCtx.drawImage(tpl, rectX, rectY);
-          // const imgData = shadowCtx.getImageData(rectX, rectY, 2*radius, 2*radius )
-          // for(let i =0;i<imgData.data.length;i+=4) {
-          //   const existingAlpha = imgData.data[i + 3];
-          //   if(existingAlpha > 0){
-          //     console.log(existingAlpha);
-          //   }
-          // }
+          else shadowCtx.drawImage(tpl, rectX, rectY);	
 
           // update renderBoundaries
           if (rectX < this._renderBoundaries[0]) {
