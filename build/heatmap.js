@@ -166,10 +166,7 @@
         this._radi = [];
 
         for (var i = 0; i < pointsLen; i++) {
-          if (this._absolute)
-            this._organiseData(dataPoints[i], true);
-          else
-            this._organiseData(dataPoints[i], false);
+          this._organiseData(dataPoints[i], this._absolute);
         }
         this._max = data.max;
         this._min = data.min || 0;
@@ -291,9 +288,8 @@
         tplCtx.fillStyle = gradient;
         tplCtx.fillRect(0, 0, 2 * radius, 2 * radius);
       }
-      if (this._absolute)
-        return { tplCanvas, tplCtx };
-      else return tplCanvas
+      if (this._absolute) { return { tplCanvas, tplCtx }; }
+      else { return tplCanvas }
     };
 
     var _prepareData = function (data) {
@@ -348,7 +344,7 @@
         this.shadowCtx = shadowCanvas.getContext('2d', { willReadFrequently: false });
       }
       else {
-        this.shadowCtx = shadowCanvas.getContext('2d');
+        this.shadowCtx = shadowCanvas.getContext('2d');	
       }
       this.ctx = canvas.getContext('2d');
 
@@ -440,12 +436,11 @@
           var rectY = y - radius;
           var shadowCtx = this.shadowCtx;
 
-
-
-
           var tpl;
+          // var tplContext;
           var tplContext;
           if (!this._templates[radius]) {
+
             if (!this._absolute) {
               this._templates[radius] = tpl = _getPointTemplate(radius, blur);
             }
