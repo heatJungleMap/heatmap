@@ -61,7 +61,7 @@
         var store = this._data;
         var max = this._max;
         var min = this._min;
-        var value = dataPoint[this._valueField] || 1;
+        var value = dataPoint[this._valueField];
         var radius = dataPoint.radius || this._cfgRadius || defaultRadius;
 
         if (!store[x]) {
