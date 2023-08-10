@@ -61,7 +61,7 @@
         var store = this._data;
         var max = this._max;
         var min = this._min;
-        var value = dataPoint[this._valueField];
+        var value = dataPoint[this._valueField] || 1;
         var radius = dataPoint.radius || this._cfgRadius || defaultRadius;
 
         if (!store[x]) {
@@ -288,7 +288,9 @@
         tplCtx.fillStyle = gradient;
         tplCtx.fillRect(0, 0, 2 * radius, 2 * radius);
       }
-      return { tplCanvas, tplCtx };
+      if (this._absolute)
+        return { tplCanvas, tplCtx };
+      else return tplCanvas
     };
 
     var _prepareData = function (data) {
@@ -339,7 +341,12 @@
       this._width = canvas.width = shadowCanvas.width = config.width || +(computed.width.replace(/px/, ''));
       this._height = canvas.height = shadowCanvas.height = config.height || +(computed.height.replace(/px/, ''));
 
-      this.shadowCtx = shadowCanvas.getContext('2d', { willReadFrequently: false });
+      if (this._absolute) {
+        this.shadowCtx = shadowCanvas.getContext('2d', { willReadFrequently: false });
+      }
+      else {
+        this.shadowCtx = shadowCanvas.getContext('2d');
+      }
       this.ctx = canvas.getContext('2d');
 
       // @TODO:
@@ -352,7 +359,8 @@
 
       this._palette = _getColorPalette(config);
       this._templates = {};
-      this._tmpContext = {};
+      if (this._absolute)
+        this._tmpContext = {};
 
       this._setStyles(config);
     };
@@ -435,13 +443,23 @@
           var tpl;
           var tplContext;
           if (!this._templates[radius]) {
-            const { tplCanvas, tplCtx } = _getPointTemplate(radius, blur);
-            this._templates[radius] = tpl = tplCanvas
-            this._tmpContext[radius] = newContext = tplCtx
+            if (!this._absolute) {
+              this._templates[radius] = tpl = _getPointTemplate(radius, blur);
+            }
+            else {
+              const { tplCanvas, tplCtx } = _getPointTemplate(radius, blur);
+              this._templates[radius] = tpl = tplCanvas
+              this._tmpContext[radius] = newContext = tplCtx
+            }
 
           } else {
-            tpl = this._templates[radius];
-            tplContext = this._tmpContext[radius]
+            if (!this._absolute) {
+              tpl = this._templates[radius];
+            }
+            else {
+              tpl = this._templates[radius];
+              tplContext = this._tmpContext[radius]
+            }
           }
           // value from minimum / value range
           // => [0, 1]
@@ -449,21 +467,24 @@
           // this fixes #176: small values are not visible because globalAlpha < .01 cannot be read from imageData
           shadowCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
 
-          var newCanvas = document.createElement('canvas');
-          var newCtx = newCanvas.getContext('2d');
-          newCanvas.width = newCanvas.height = radius * 2;
-          newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
-          newCtx.drawImage(tpl, 0, 0);
+          if (this._absolute) {
+            var newCanvas = document.createElement('canvas');
+            var newCtx = newCanvas.getContext('2d');
+            newCanvas.width = newCanvas.height = radius * 2;
+            newCtx.globalAlpha = templateAlpha < .01 ? .01 : templateAlpha;
+            newCtx.drawImage(tpl, 0, 0);
 
-          const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
-          const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
-          for (let i = 0; i < imgData.data.length; i += 4) {
-            const existingAlpha = imgData.data[i + 3];
-            const newAlpha = currentData.data[i + 3];
-            // console.log(existingAlpha, newAlpha);
-            imgData.data[i + 3] = Math.max(existingAlpha, newAlpha);
+            const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
+            const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
+            for (let i = 0; i < imgData.data.length; i += 4) {
+              const existingAlpha = imgData.data[i + 3];
+              const newAlpha = currentData.data[i + 3];
+              // console.log(existingAlpha, newAlpha);
+              imgData.data[i + 3] = Math.max(existingAlpha, newAlpha);
+            }
+            shadowCtx.putImageData(imgData, rectX, rectY)
+            shadowCtx.drawImage(tpl, rectX, rectY);
           }
-          shadowCtx.putImageData(imgData, rectX, rectY)
           shadowCtx.drawImage(tpl, rectX, rectY);
           // const imgData = shadowCtx.getImageData(rectX, rectY, 2*radius, 2*radius )
           // for(let i =0;i<imgData.data.length;i+=4) {
