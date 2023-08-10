@@ -457,16 +457,14 @@
 
           const imgData = shadowCtx.getImageData(rectX, rectY, 2 * radius, 2 * radius)
           const currentData = newCtx.getImageData(0, 0, 2 * radius, 2 * radius)
-          if (this._absolute) {
-            for (let i = 0; i < imgData.data.length; i += 4) {
-              const existingAlpha = imgData.data[i + 3];
-              const newAlpha = currentData.data[i + 3];
-              // console.log(existingAlpha, newAlpha);
-              imgData.data[i + 3] = Math.max(existingAlpha, newAlpha);
-            }
-            shadowCtx.putImageData(imgData, rectX, rectY)
+          for (let i = 0; i < imgData.data.length; i += 4) {
+            const existingAlpha = imgData.data[i + 3];
+            const newAlpha = currentData.data[i + 3];
+            // console.log(existingAlpha, newAlpha);
+            imgData.data[i + 3] = Math.max(existingAlpha, newAlpha);
           }
-          else { shadowCtx.drawImage(tpl, rectX, rectY); }
+          shadowCtx.putImageData(imgData, rectX, rectY)
+          shadowCtx.drawImage(tpl, rectX, rectY);
           // const imgData = shadowCtx.getImageData(rectX, rectY, 2*radius, 2*radius )
           // for(let i =0;i<imgData.data.length;i+=4) {
           //   const existingAlpha = imgData.data[i + 3];
